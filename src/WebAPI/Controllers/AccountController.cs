@@ -52,7 +52,7 @@ namespace WebAPI.Controllers
         {
             var user = await _context.Users.SingleOrDefaultAsync(user => user.UserName == login.Username.ToLower());
             if (user == null)
-                return Unauthorized("User doesn't exists");
+                return Unauthorized();
 
             using var hmac = new HMACSHA512(user.PasswordSalt);
 
