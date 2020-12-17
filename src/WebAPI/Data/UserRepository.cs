@@ -26,7 +26,7 @@ namespace WebAPI.Data
         {
             return await _context.Users
                 .ProjectTo<MemberDto>(_mapper.ConfigurationProvider)
-                .Where(user => user.UserName == username)
+                .Where(user => user.Username == username)
                 .SingleOrDefaultAsync();
         }
 

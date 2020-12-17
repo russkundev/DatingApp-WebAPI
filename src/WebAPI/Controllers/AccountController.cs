@@ -44,13 +44,18 @@ namespace WebAPI.Controllers
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
-            return Ok(new UserDTO { Username = user.UserName, Token = _tokenService.CreateToken(user) });
+            return Ok(new UserDTO { 
+                Username = user.UserName, 
+                Token = _tokenService.CreateToken(user) 
+            });
         }
 
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginModel login)
         {
-            var user = await _context.Users.SingleOrDefaultAsync(user => user.UserName == login.Username.ToLower());
+            var user = await _context.Users
+                .Include(user => user.Photos)
+                .SingleOrDefaultAsync(user => user.UserName == login.Username.ToLower());
             if (user == null)
                 return Unauthorized();
 
@@ -64,7 +69,12 @@ namespace WebAPI.Controllers
                     return Unauthorized("Incorrect user!");
             }
 
-            return Ok(new UserDTO { Username = user.UserName, Token = _tokenService.CreateToken(user) });
+            return Ok(new UserDTO
+            {
+                Username = user.UserName,
+                Token = _tokenService.CreateToken(user),
+                PhotoUrl = user.Photos.FirstOrDefault(photo => photo.IsMain)?.Url
+            });
         }
 
         private async Task<bool> UserExists(string username)
